@@ -1,0 +1,29 @@
+{
+  "name": "cachestore",
+  "version": "0.0.1",
+  "description": "A standalone memory cache or wrapper for storage supporting localStore, blockstore, Redis or similar APIs",
+  "engines": {},
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "test": "mocha test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anywhichway/cachestore.git"
+  },
+  "keywords": [
+    "filestore, memcache, Redis, blockstore, database, key-value, localstorage, JSONBlockStore"
+  ],
+  "author": "Simon Y. Blackwell <syblackwell@anywhichway.com> (http://www.github.com/anywhichway)",
+  "bugs": {
+    "url": "https://github.com/anywhichway/cachestore/issues"
+  },
+  "homepage": "https://github.com/anywhichway/cachestore#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "blockstore": "0.0.5",
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2"
+  }
+}

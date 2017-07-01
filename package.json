@@ -1,6 +1,6 @@
 {
   "name": "cachestore",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A standalone memory cache or wrapper for storage supporting localStore, blockstore, Redis or similar APIs",
   "engines": {},
   "license": "MIT",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/anywhichway/cachestore.git"
   },
   "keywords": [
-    "filestore, memcache, Redis, blockstore, database, key-value, localstorage, JSONBlockStore"
+    "cache, LRU, filestore, memcache, Redis, blockstore, database, key-value, localstorage, JSONBlockStore"
   ],
   "author": "Simon Y. Blackwell <syblackwell@anywhichway.com> (http://www.github.com/anywhichway)",
   "bugs": {

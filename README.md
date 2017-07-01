@@ -14,4 +14,6 @@ npm install cachestore
 
 # Release History (reverse chronological order)
 
-v0.0.1 First public release (Still needs work an LRU scavenging)
+v0.0.2 2017-07-01 Fixed issues related to compatibility with localStorage API
+
+v0.0.1 2017-07-01 First public release (Still needs work an LRU scavenging)

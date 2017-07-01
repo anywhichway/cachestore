@@ -17,7 +17,7 @@
 						let value = target[property];
 						if(value!==undefined) return value;
 						if(!this.storageProvider) return;
-						 value = this.storageProvider[property];
+						value = this.storageProvider[property];
 						if(typeof(value)==="function") {
 							return new Proxy(value,{
 								apply: (target,thisArg,argumentsList) => target.apply(thisArg,argumentsList)
@@ -29,9 +29,16 @@
 			}
 			return this;
 		}
+		async count() {
+			if(this.storageProvide) {
+				if(this.storageProvider.length!==undefined) return this.storageProvider.length;
+				return this.storageProvider.count();
+			}
+			return Object.keys(this.cache).length;
+		}
 		async delete(id) {
 			this.cache.flush(id);
-			!this.storageProvider || await this.storageProvider.delete(id);
+			!this.storageProvider || (this.storageProvider.removeItem ? this.storageProvider.removeItem(id) : (this.storageProvider.del ? await this.storageProvider.del(id) : await this.storageProvider.delete(id)));
 		}
 		async get(id) {
 			const record = this.cache[id] || (this.cache[id] = {hits:0});
@@ -42,7 +49,7 @@
 				return record.value;
 			}
 			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) this.scavenge();
-			return (this.storageProvider ? record.value = await this.storageProvider.get(id) : undefined);
+			return (this.storageProvider ? record.value = (await this.storageProvider.getItem ? await this.storageProvider.getItem(id) : await this.storageProvider.get(id)) : undefined);
 		}
 		scavenge(hitMin=3) { 
 			for(let id in this.cache) {
@@ -60,7 +67,7 @@
 		}
 		async set(id,data) {
 			const record = this.cache[id] || (this.cache[id] = {value:data,hits:0});
-			!this.storageProvider || await this.storageProvider.set(id,data);
+			!this.storageProvider || (this.storageProvider.setItem ? await this.storageProvider.setItem(id,data) : await this.storageProvider.set(id,data));
 			return id;
 		}
 		flush(id) {

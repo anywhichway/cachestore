@@ -24,7 +24,7 @@
 				}
 				return value;
 			}
-		})
+		});
 	}
 
 	class CacheStore {
@@ -39,12 +39,12 @@
 			} else {
 				this.baseline = Infinity;
 			}
-			if(storageProvider) return delegate(this,"storageProvider");
+			if(storageProvider) { return delegate(this,"storageProvider"); }
 			return this;
 		}
 		async count() {
 			if(this.storageProvide) {
-				if(this.storageProvider.length!==undefined) return this.storageProvider.length;
+				if(typeof(this.storageProvider.length)==="number") { return this.storageProvider.length; }
 				return this.storageProvider.count();
 			}
 			return Object.keys(this.cache).length;
@@ -62,7 +62,7 @@
 				return record.value;
 			}
 			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) { this.scavenge(); }
-			return (this.storageProvider ? record.value = (await this.storageProvider.getItem ? await this.storageProvider.getItem(id) : await this.storageProvider.get(id)) : undefined);
+			return (this.storageProvider ? record.value = (await this.storageProvider.getItem ? await this.storageProvider.getItem(id) : await this.storageProvider.get(id)) : null);
 		}
 		scavenge(hitMin=3) { 
 			for(let id in this.cache) {
@@ -93,7 +93,7 @@
 				delete this.cache; 
 				this.cache = {};
 			}
-			if(typeof(global)!=="undefined" && global.gc) global.gc();
+			if(typeof(global)!=="undefined" && global.gc) { global.gc(); }
 		}
 	}
 	if(typeof(window)==="undefined") {

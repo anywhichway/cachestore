@@ -1,6 +1,6 @@
 {
   "name": "cachestore",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A standalone memory cache or wrapper for storage supporting localStore, blockstore, Redis or similar APIs",
   "engines": {},
   "license": "MIT",

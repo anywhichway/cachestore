@@ -1,7 +1,35 @@
 (function() {
+	"use strict";
+	const delegate = (object,delegateProperty,block=[]) => {
+		  return new Proxy(object,{
+		     get: (target,property) => {
+		    	 // return value if property in in target instance
+		    	 if(property in target) return target[property];
+		    	 // selectively block forwarding
+		    	 if(block.includes[property]) return;
+		    	 // get the property from the delegate
+		    	 const value = target[delegateProperty][property];
+		    	 if(typeof(value)==="function") {
+		    		 // if it is a function, proxy it so that scope is correct
+		    		 return new Proxy(value,{
+		    			 apply: (f,thisArg,argumentsList) => {
+		    				 // if trying to call on target, then use delegate
+		    				 // else call on provided thisArg
+		    				 const scope = (thisArg===target
+		    						 ? target[delegateProperty]
+		    				 : thisArg);
+		    				 return f.apply(scope,argumentsList);
+		    			 }
+		    		 });
+		    	 }
+		       return value;
+		    }
+		  })
+		}
+
 	class CacheStore {
 		constructor(storageProvider,options={}) {
-			this.storageProvider = storageProvider;
+			!storageProvider || (this.storageProvider = storageProvider);
 			this.options = Object.assign({},options);
 			this.options.scavengeThreshold || (this.options.scavengeThreshold= 10000);
 			this.cache = {};
@@ -11,22 +39,7 @@
 			} else {
 				this.baseline = Infinity;
 			}
-			if(storageProvider) {
-				return new Proxy(this,{
-					get: (target,property) => {
-						let value = target[property];
-						if(value!==undefined) return value;
-						if(!this.storageProvider) return;
-						value = this.storageProvider[property];
-						if(typeof(value)==="function") {
-							return new Proxy(value,{
-								apply: (target,thisArg,argumentsList) => target.apply(thisArg,argumentsList)
-							})
-						}
-						return value;
-					}
-				});
-			}
+			if(storageProvider) return delegate(this,"storageProvider");
 			return this;
 		}
 		async count() {
@@ -37,7 +50,7 @@
 			return Object.keys(this.cache).length;
 		}
 		async delete(id) {
-			this.cache.flush(id);
+			this.flush(id);
 			!this.storageProvider || (this.storageProvider.removeItem ? this.storageProvider.removeItem(id) : (this.storageProvider.del ? await this.storageProvider.del(id) : await this.storageProvider.delete(id)));
 		}
 		async get(id) {
@@ -48,7 +61,7 @@
 				this.hits++;
 				return record.value;
 			}
-			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) this.scavenge();
+			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) { this.scavenge(); }
 			return (this.storageProvider ? record.value = (await this.storageProvider.getItem ? await this.storageProvider.getItem(id) : await this.storageProvider.get(id)) : undefined);
 		}
 		scavenge(hitMin=3) { 
@@ -71,7 +84,7 @@
 			return id;
 		}
 		flush(id) {
-			if(id) delete this.cache[id];
+			if(id) { delete this.cache[id]; }
 			else {
 				// help the gc along
 				for(let key in this.cache) {

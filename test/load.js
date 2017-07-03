@@ -18,13 +18,13 @@ async function test() {
 		await localstore.setItem(i+"l","test string " + i);
 	}
 	let end = Date.now();
-	console.log("localStorage Write Records Sec:", testsize / ((end-start)/1000));
+	console.log("storage Write Records Sec:", testsize / ((end-start)/1000));
 	start = Date.now();
 	for(let i=0;i<testsize;i++) {
 		await localstore.setItem(i+"l","test string " + i);
 	}
 	end = Date.now();
-	console.log("localStorage Second Write Records Sec:", testsize / ((end-start)/1000));
+	console.log("storage Second Write Records Sec:", testsize / ((end-start)/1000));
 	start = Date.now();
 	for(let i=0;i<testsize;i++) {
 		await cachestore.set(i+"c","test string " + i);
@@ -36,7 +36,7 @@ async function test() {
 		await localstore.getItem(i+"l");
 	}
 	end = Date.now();
-	console.log("localStore Read Records Sec:", testsize / ((end-start)/1000));
+	console.log("storage Read Records Sec:", testsize / ((end-start)/1000));
 	start = Date.now();
 	for(let i=0;i<testsize;i++) {
 		await cachestore.get(i+"c");

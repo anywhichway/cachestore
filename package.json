@@ -1,6 +1,6 @@
 {
   "name": "cachestore",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "A standalone memory cache or wrapper for storage supporting localStore, blockstore, Redis or similar APIs",
   "engines": {},
   "license": "MIT",
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/anywhichway/cachestore#readme",
   "dependencies": {},
   "devDependencies": {
-    "blockstore": "0.0.5",
+    "blockstore": "0.0.8",
     "chai": "^4.0.2",
     "mocha": "^3.4.2"
   }

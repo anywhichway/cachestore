@@ -1,31 +1,31 @@
 (function() {
 	"use strict";
 	const delegate = (object,delegateProperty,block=[]) => {
-		  return new Proxy(object,{
-		     get: (target,property) => {
-		    	 // return value if property in in target instance
-		    	 if(property in target) return target[property];
-		    	 // selectively block forwarding
-		    	 if(block.includes[property]) return;
-		    	 // get the property from the delegate
-		    	 const value = target[delegateProperty][property];
-		    	 if(typeof(value)==="function") {
-		    		 // if it is a function, proxy it so that scope is correct
-		    		 return new Proxy(value,{
-		    			 apply: (f,thisArg,argumentsList) => {
-		    				 // if trying to call on target, then use delegate
-		    				 // else call on provided thisArg
-		    				 const scope = (thisArg===target
-		    						 ? target[delegateProperty]
-		    				 : thisArg);
-		    				 return f.apply(scope,argumentsList);
-		    			 }
-		    		 });
-		    	 }
-		       return value;
-		    }
-		  })
-		}
+		return new Proxy(object,{
+			get: (target,property) => {
+				// return value if property in in target instance
+				if(property in target) { return target[property]; }
+				// selectively block forwarding
+				if(block.includes(property)) { return; }
+				// get the property from the delegate
+				const value = target[delegateProperty][property];
+				if(typeof(value)==="function") {
+					// if it is a function, proxy it so that scope is correct
+					return new Proxy(value,{
+						apply: (f,thisArg,argumentsList) => {
+							// if trying to call on target, then use delegate
+							// else call on provided thisArg
+							const scope = (thisArg===target
+									? target[delegateProperty]
+							: thisArg);
+							return f.apply(scope,argumentsList);
+						}
+					});
+				}
+				return value;
+			}
+		})
+	}
 
 	class CacheStore {
 		constructor(storageProvider,options={}) {
@@ -66,9 +66,9 @@
 		}
 		scavenge(hitMin=3) { 
 			for(let id in this.cache) {
-				if(this.cache[id].hits<hitMin) delete this.cache[id];
+				if(this.cache[id].hits<hitMin) { delete this.cache[id]; }
 			}
-			if(typeof(global)!=="undefined" && global.gc) global.gc();
+			if(typeof(global)!=="undefined" && global.gc) { global.gc(); }
 		}
 		async replace(id,data) {
 			const record = this.cache[id];
@@ -104,7 +104,7 @@
 	} else {
 		CacheStore.prototype.lowMemory = function(floor=0.2) {
 			//window.performance.memory
-		/*
+			/*
 			{
 				  totalJSHeapSize: 29400000,
 				  usedJSHeapSize: 15200000,

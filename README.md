@@ -1,4 +1,7 @@
 # cachestore
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5d0b3507599946679d1e37302facb607)](https://www.codacy.com/app/syblackwell/cachestore?utm_source=github.com&utm_medium=referral&utm_content=anywhichway/cachestore&utm_campaign=badger)
+
 A standalone memory cache and wrapper for storage engines supporting the localStore, Redis or similar APIs
 
 # installation

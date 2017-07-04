@@ -18,6 +18,8 @@ Note, when using `get` CacheStore may return either `null` or `undefined` if the
 
 # Release History (reverse chronological order)
 
+v0.0.5 2017-07-04 Fixed count request forwarding to underlying store.
+
 v0.0.4 2017-07-04 Codacy driven style improvements. Added unit tests.
 
 v0.0.3 2017-07-02 Improved delegation code

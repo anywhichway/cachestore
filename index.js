@@ -43,7 +43,7 @@
 			return this;
 		}
 		async count() {
-			if(this.storageProvide) {
+			if(this.storageProvider) {
 				if(typeof(this.storageProvider.length)==="number") { return this.storageProvider.length; }
 				return this.storageProvider.count();
 			}

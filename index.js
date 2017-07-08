@@ -32,6 +32,8 @@
 			!storageProvider || (this.storageProvider = storageProvider);
 			this.options = Object.assign({},options);
 			this.options.scavengeThreshold || (this.options.scavengeThreshold= 10000);
+			this.size = 0;
+			this.keys = {};
 			this.cache = {};
 			this.hits = 0;
 			if(typeof(window)==="undefined") {
@@ -46,9 +48,8 @@
 			const storageProvider = this.storageProvider;
 			if(storageProvider) {
 				await storageProvider.clear();
-			} else {
-				this.cache = {};
 			}
+			this.flush();
 		}
 		async count() {
 			const storageProvider = this.storageProvider;
@@ -56,7 +57,7 @@
 				if(typeof(storageProvider.length)==="number") { return storageProvider.length; }
 				return storageProvider.count();
 			}
-			return Object.keys(this.cache).length;
+			return this.size;
 		}
 		async delete(id) {
 			const storageProvider = this.storageProvider;
@@ -64,19 +65,27 @@
 			!storageProvider || (storageProvider.removeItem ? storageProvider.removeItem(id) : (storageProvider.del ? await storageProvider.del(id) : await storageProvider.delete(id)));
 		}
 		async get(id) {
-			const record = this.cache[id] || (this.cache[id] = {hits:0}),
-				storageProvider = this.storageProvider;
+			let record = this.cache[id];
+			if(record) {
+				record.hits++;
+				return record.value;
+			}
+			const storageProvider = this.storageProvider,
+				value = (storageProvider ? (await storageProvider.getItem ? await storageProvider.getItem(id) : await storageProvider.get(id)) : undefined);
+			if(value===undefined) { return; }
+			this.cache[id] = {hits:1,value:value};
+			this.keys[this.size++] = id;
 			//console.log("get",id,data)
-			if(record.value) {
+			/*if(record.value) {
 				record.hits++;
 				this.hits++;
 				return record.value;
 			}
-			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) { this.scavenge(); }
-			return (storageProvider ? record.value = (await storageProvider.getItem ? await storageProvider.getItem(id) : await storageProvider.get(id)) : null);
+			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) { this.scavenge(); }*/
+			return value;
 		}
 		async key(number) {
-			return Object.keys(this.cache)[number];
+			return this.keys[number];
 		}
 		async put(data,id) {
 			if(!id) {
@@ -88,7 +97,7 @@
 				}
 				id = node;
 			}
-			return await this.set(data,id);
+			return await this.set(id,data);
 		}
 		scavenge(hitMin=3) { 
 			for(let id in this.cache) {
@@ -96,25 +105,28 @@
 			}
 			if(typeof(global)!=="undefined" && global.gc) { global.gc(); }
 		}
-		async replace(id,data) {
-			const record = this.cache[id];
-			if(record) {
-				record.value = data;
-				!this.storageProvider || await this.storageProvider.replace(id,data);
-			}
-			return id;
-		}
 		async set(id,data) {
-			this.cache[id] || (this.cache[id] = {value:data,hits:0});
 			if(this.storageProvider) {
 				this.storageProvider.setItem ? await this.storageProvider.setItem(id,data) : await this.storageProvider.set(id,data);
-			} else {
-				this.cache[id].value = data;
 			}
+			if(!this.cache[id]) {
+				this.cache[id] = {value:data,hits:0};
+				this.keys[this.size++] = id;
+			}
+			this.cache[id].value = data;
 			return id;
 		}
 		flush(id) {
-			if(id) { delete this.cache[id]; }
+			if(id) {
+				delete this.cache[id];
+				for(let number in this.keys) {
+					if(this.keys[number]===id) {
+						delete this.keys[number];
+						this.size--;
+						break;
+					}
+				}
+			}
 			else {
 				// help the gc along
 				for(let key in this.cache) {
@@ -122,6 +134,9 @@
 				}
 				delete this.cache; 
 				this.cache = {};
+				delete this.keys; 
+				this.keys = {};
+				this.size = 0;
 			}
 			if(typeof(global)!=="undefined" && global.gc) { global.gc(); }
 		}

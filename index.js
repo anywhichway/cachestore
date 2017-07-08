@@ -42,19 +42,30 @@
 			if(storageProvider) { return delegate(this,"storageProvider"); }
 			return this;
 		}
+		async clear() {
+			const storageProvider = this.storageProvider;
+			if(storageProvider) {
+				await storageProvider.clear();
+			} else {
+				this.cache = {};
+			}
+		}
 		async count() {
-			if(this.storageProvider) {
-				if(typeof(this.storageProvider.length)==="number") { return this.storageProvider.length; }
-				return this.storageProvider.count();
+			const storageProvider = this.storageProvider;
+			if(storageProvider) {
+				if(typeof(storageProvider.length)==="number") { return storageProvider.length; }
+				return storageProvider.count();
 			}
 			return Object.keys(this.cache).length;
 		}
 		async delete(id) {
+			const storageProvider = this.storageProvider;
 			this.flush(id);
-			!this.storageProvider || (this.storageProvider.removeItem ? this.storageProvider.removeItem(id) : (this.storageProvider.del ? await this.storageProvider.del(id) : await this.storageProvider.delete(id)));
+			!storageProvider || (storageProvider.removeItem ? storageProvider.removeItem(id) : (storageProvider.del ? await storageProvider.del(id) : await storageProvider.delete(id)));
 		}
 		async get(id) {
-			const record = this.cache[id] || (this.cache[id] = {hits:0});
+			const record = this.cache[id] || (this.cache[id] = {hits:0}),
+				storageProvider = this.storageProvider;
 			//console.log("get",id,data)
 			if(record.value) {
 				record.hits++;
@@ -62,7 +73,22 @@
 				return record.value;
 			}
 			if(this.hits > this.options.scavengeThreshold || this.lowMemory()) { this.scavenge(); }
-			return (this.storageProvider ? record.value = (await this.storageProvider.getItem ? await this.storageProvider.getItem(id) : await this.storageProvider.get(id)) : null);
+			return (storageProvider ? record.value = (await storageProvider.getItem ? await storageProvider.getItem(id) : await storageProvider.get(id)) : null);
+		}
+		async key(number) {
+			return Object.keys(this.cache)[number];
+		}
+		async put(data,id) {
+			if(!id) {
+				const parts = this.options.keyPath.split(".");
+				let node = data;
+				for(let part of parts) {
+					node = node[part];
+					if(!node) { throw new Error("No key available for put! " + JSON.stringify(data)); }
+				}
+				id = node;
+			}
+			return await this.set(data,id);
 		}
 		scavenge(hitMin=3) { 
 			for(let id in this.cache) {
@@ -79,8 +105,12 @@
 			return id;
 		}
 		async set(id,data) {
-			const record = this.cache[id] || (this.cache[id] = {value:data,hits:0});
-			!this.storageProvider || (this.storageProvider.setItem ? await this.storageProvider.setItem(id,data) : await this.storageProvider.set(id,data));
+			this.cache[id] || (this.cache[id] = {value:data,hits:0});
+			if(this.storageProvider) {
+				this.storageProvider.setItem ? await this.storageProvider.setItem(id,data) : await this.storageProvider.set(id,data);
+			} else {
+				this.cache[id].value = data;
+			}
 			return id;
 		}
 		flush(id) {

@@ -18,7 +18,7 @@ Note, when using `get` CacheStore may return either `null` or `undefined` if the
 
 # Release History (reverse chronological order)
 
-v0.0.9 2017-07-09 Minor code style improvements
+v0.0.9 2017-07-09 Minor code style improvements. Added `key(index)` relaying to underliyng providers.
 
 v0.0.8 2017-07-08 Added internal caching of key list, substantially imporving speed for large caches.
 

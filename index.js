@@ -87,7 +87,11 @@
 			return value;
 		}
 		async key(number) {
-			return this.keys[number];
+			let key = this.keys[number];
+			if(!key && this.storageProvider) {
+				key = this.keys[number] = this.storageProvider.key(number);
+			}
+			return key;
 		}
 		async put(data,id) {
 			if(!id) {

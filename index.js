@@ -1,7 +1,7 @@
 (function() {
 	"use strict";
 	let undfnd;
-	const UNDEFINED = udfnd,
+	const UNDEFINED = undfnd,
 		delegate = (object,delegateProperty,block=[]) => {
 		return new Proxy(object,{
 			get: (target,property) => {
@@ -25,7 +25,7 @@
 					});
 				}
 				return value;
-			};
+			}
 		});
 	}
 

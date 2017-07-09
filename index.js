@@ -1,6 +1,8 @@
 (function() {
 	"use strict";
-	const delegate = (object,delegateProperty,block=[]) => {
+	let undfnd;
+	const UNDEFINED = udfnd,
+		delegate = (object,delegateProperty,block=[]) => {
 		return new Proxy(object,{
 			get: (target,property) => {
 				// return value if property in in target instance
@@ -23,7 +25,7 @@
 					});
 				}
 				return value;
-			}
+			};
 		});
 	}
 
@@ -71,9 +73,9 @@
 				return record.value;
 			}
 			const storageProvider = this.storageProvider,
-				value = (storageProvider ? (await storageProvider.getItem ? await storageProvider.getItem(id) : await storageProvider.get(id)) : undefined);
-			if(value===undefined) { return; }
-			this.cache[id] = {hits:1,value:value};
+				value = (storageProvider ? (await storageProvider.getItem ? await storageProvider.getItem(id) : await storageProvider.get(id)) : UNDEFINED);
+			if(value===UNDEFINED) { return; }
+			this.cache[id] = {hits:1,value};
 			this.keys[this.size++] = id;
 			//console.log("get",id,data)
 			/*if(record.value) {
